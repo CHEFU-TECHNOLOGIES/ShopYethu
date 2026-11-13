@@ -163,3 +163,51 @@ test('account links go directly to central auth and preserve only the registered
   }
   assert.equal(new URL(accountUrl('/login', true)).searchParams.get('prompt'), 'select_account')
 })
+
+test('saved accounts use the central cookies and explicit, validated mutations', async () => {
+  const h = harness()
+  const { listSavedAccounts, switchSavedAccount, removeSavedAccount } = h.load(
+    'src/lib/auth/account-sessions.ts',
+  )
+  h.setFetch(() =>
+    Response.json({
+      accounts: [
+        { slot: null, email: 'staff@example.test', fullName: 'Staff', active: true },
+        { slot: 2, email: 'other@example.test', active: false },
+      ],
+    }),
+  )
+  assert.equal((await listSavedAccounts()).length, 2)
+  assert.equal(h.requests[0][0], 'https://api.chefu.co.za/auth/accounts')
+  assert.equal(h.requests[0][1].credentials, 'include')
+  assert.equal(h.requests[0][1].headers, undefined)
+  h.setFetch(() => Response.json({ ok: true }))
+  await switchSavedAccount(2)
+  assert.equal(h.requests[1][0], 'https://api.chefu.co.za/auth/accounts/switch')
+  assert.equal(h.requests[1][1].method, 'POST')
+  assert.equal(h.requests[1][1].body, '{"slot":2}')
+  await removeSavedAccount(2)
+  assert.equal(h.requests[2][0], 'https://api.chefu.co.za/auth/accounts/2')
+  assert.equal(h.requests[2][1].method, 'DELETE')
+  for (const slot of [-1, 8, 0.5, NaN]) {
+    await assert.rejects(switchSavedAccount(slot), /Invalid saved account/)
+    await assert.rejects(removeSavedAccount(slot), /Invalid saved account/)
+  }
+  assert.equal(h.requests.length, 3)
+})
+
+test('malformed account lists and unconfirmed or expired mutations report failure', async () => {
+  const h = harness()
+  const { listSavedAccounts, switchSavedAccount, removeSavedAccount } = h.load(
+    'src/lib/auth/account-sessions.ts',
+  )
+  h.setFetch(() =>
+    Response.json({ accounts: [{ slot: 99, email: 'bad@example.test', active: false }] }),
+  )
+  await assert.rejects(listSavedAccounts(), /Unable to load/)
+  h.setFetch(() => Response.json({ ok: false }))
+  await assert.rejects(switchSavedAccount(0), /could not confirm/)
+  await assert.rejects(removeSavedAccount(0), /could not confirm/)
+  h.setFetch(() => Response.json({ error: 'Session expired' }, { status: 401 }))
+  await assert.rejects(switchSavedAccount(0), /Session expired/)
+})

@@ -40,6 +40,13 @@ Login, account settings, account selection and global sign-out go directly to
 CheFu-Account. ShopYethu has no auth route handlers, local session cookie,
 OAuth callback, token storage or authentication secret.
 
+The sidebar account switcher follows CheFu-Account: avatar and email, saved
+accounts, account settings, adding another account, and confirmed removal or
+global sign-out. Saved accounts load only on the first opening of the panel;
+reopening, browser focus and tab switching do not fetch the list again. Switching
+uses the existing central endpoint and reloads the workspace so the session gate
+checks the selected account's administrator permissions before rendering it.
+
 
 These public settings are included at build time. Deploy the backend session
 endpoint and the CheFu-Account return-origin registration before testing against
@@ -48,7 +55,7 @@ ShopYethu; localhost is not an allowed return origin. The browser sends the
 backend's existing HTTP-only session cookie; ShopYethu does not need to read it.
 Dashboard records remain empty until a persistent marketplace backend is added.
 
-Use the header’s **Colour theme** selector for Light, Dark, or System appearance.
+Use the **Colour theme** selector beside the sidebar’s Workspace label for Light, Dark, or System appearance.
 The browser remembers the preference under `shopyethu-theme`. System follows the
 device setting. The theme also applies to record details and the not-found page.
 

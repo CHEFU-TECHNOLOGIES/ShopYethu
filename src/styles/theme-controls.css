@@ -11,6 +11,12 @@
   font-size: 12px;
   box-shadow: none;
 }
+.sidebar-section-heading .theme-switcher [data-slot='native-select'] {
+  min-width: 88px;
+  height: 32px;
+  padding-block: 5px;
+  font-size: 11px;
+}
 .filter-controls [data-slot='native-select-wrapper'] {
   width: 100%;
 }
@@ -18,16 +24,7 @@
   width: 100%;
 }
 
-@media (max-width: 900px) {
-  .workspace-controls {
-    gap: 12px;
-  }
-}
 @media (max-width: 720px) {
-  .workspace-controls {
-    justify-content: flex-end;
-    gap: 14px;
-  }
   .theme-switcher [data-slot='native-select'],
   .filter-controls [data-slot='native-select'],
   .search-field [data-slot='input'] {

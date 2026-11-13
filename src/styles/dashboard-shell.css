@@ -31,8 +31,15 @@
     height: calc(100% - 70px);
     flex-direction: column;
 }
+.sidebar-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 40px 0 12px;
+}
 .nav-label {
-    margin: 54px 10px 12px;
+    margin: 0;
     color: var(--text-muted);
     font-size: 11px;
 }
@@ -75,26 +82,9 @@
 .workspace {
     margin-left: 228px;
 }
-.workspace-header {
-    display: flex;
-    min-height: 84px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 15px 44px;
-    border-bottom: 1px solid var(--line);
-    background: var(--surface-header);
-    color: var(--text-muted);
-    font-size: 12px;
-}
-.workspace-controls {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
 .workspace-main {
     max-width: 1530px;
-    min-height: calc(100vh - 84px);
+    min-height: 100vh;
     margin: 0 auto;
     padding: 44px 44px 20px;
 }

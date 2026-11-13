@@ -7,9 +7,6 @@
   .workspace-main {
     padding: 34px 28px 20px;
   }
-  .workspace-header {
-    padding-inline: 28px;
-  }
   .overview-grid {
     grid-template-columns: 1fr;
   }
@@ -78,7 +75,7 @@
   .sidebar-content.is-open {
     display: flex;
   }
-  .nav-label {
+  .sidebar-section-heading {
     margin-top: 30px;
   }
   .sidebar nav {
@@ -94,13 +91,6 @@
   }
   .workspace {
     margin-left: 0;
-  }
-  .workspace-header {
-    min-height: 66px;
-    padding: 12px 20px;
-  }
-  .workspace-header > span {
-    font-size: 11px;
   }
   .workspace-main {
     padding: 30px 20px 20px;
@@ -166,9 +156,6 @@
 }
 @media (max-width: 380px) {
   .workspace-main {
-    padding-inline: 14px;
-  }
-  .workspace-header {
     padding-inline: 14px;
   }
   .panel-heading {
