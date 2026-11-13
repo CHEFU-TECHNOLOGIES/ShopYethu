@@ -1,0 +1,25 @@
+.brand-logo {
+  display: block;
+  width: 180px;
+  max-width: 100%;
+  aspect-ratio: 455 / 104;
+}
+
+.brand-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.brand-logo .brand-logo-dark,
+.dark .brand-logo .brand-logo-light {
+  display: none;
+}
+
+.dark .brand-logo .brand-logo-dark {
+  display: block;
+}
+
+.not-found-page .brand-logo {
+  width: 220px;
+}
