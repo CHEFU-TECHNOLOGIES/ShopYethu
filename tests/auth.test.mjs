@@ -64,8 +64,11 @@ test('central session uses credentialed backend requests without bearer credenti
   assert.equal(url, 'https://api.chefu.co.za/auth/shopyethu/session')
   assert.equal(options.credentials, 'include')
   assert.equal(options.cache, 'no-store')
-  assert.equal(options.headers['x-chefu-app'], 'shopyethu')
-  assert.equal(options.headers.Authorization, undefined)
+  assert.equal(
+    options.headers,
+    undefined,
+    'no custom headers or bearer token, so no preflight is needed',
+  )
 })
 
 test('expired sessions, access denial, outages, and malformed responses remain distinct', async () => {
@@ -94,11 +97,56 @@ test('expired sessions, access denial, outages, and malformed responses remain d
   assert.equal((await getCentralSession()).status, 'unavailable')
   const controller = new AbortController()
   controller.abort()
-  h.setFetch((url, options) => {
-    assert.equal(options.signal.aborted, true)
-    throw new Error('aborted')
-  })
+  const calls = h.requests.length
   assert.equal((await getCentralSession(controller.signal)).status, 'unavailable')
+  assert.equal(h.requests.length, calls, 'already unmounted consumers do not start requests')
+})
+
+test('concurrent mounts share a request; cancellation does not abort other consumers or restart work', async () => {
+  const h = harness()
+  let finish
+  h.setFetch(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve
+      }),
+  )
+  const { getCentralSession } = h.load('src/lib/auth/session.ts')
+  const firstMount = new AbortController()
+  const first = getCentralSession(firstMount.signal)
+  firstMount.abort()
+  const remount = getCentralSession()
+  assert.equal(getCentralSession(), remount)
+  assert.equal(h.requests.length, 1)
+  assert.equal(h.requests[0][1].signal.aborted, false)
+  assert.equal((await first).status, 'unavailable')
+  finish(
+    Response.json({
+      app: 'shopyethu',
+      user: { uid: 'uid', email: 'staff@example.test', name: 'Staff' },
+    }),
+  )
+  assert.equal((await remount).status, 'authenticated')
+  h.setFetch(() => new Response(null, { status: 403 }))
+  assert.equal(
+    (await getCentralSession()).status,
+    'forbidden',
+    'later requests must revalidate permissions',
+  )
+  assert.equal(h.requests.length, 2)
+})
+
+test('outages are shared only while in flight and an explicit retry makes a fresh request', async () => {
+  const h = harness()
+  const { getCentralSession } = h.load('src/lib/auth/session.ts')
+  const first = getCentralSession()
+  const second = getCentralSession()
+  assert.equal(first, second)
+  assert.equal((await first).status, 'unavailable')
+  assert.equal(h.requests.length, 1)
+  h.setFetch(() => new Response(null, { status: 401 }))
+  assert.equal((await getCentralSession()).status, 'anonymous')
+  assert.equal(h.requests.length, 2)
 })
 
 test('account links go directly to central auth and preserve only the registered return origin', () => {

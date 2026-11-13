@@ -26,8 +26,14 @@ browser flow. ShopYethu calls `GET /auth/shopyethu/session` on the central backe
 with `credentials: 'include'`. The backend validates the session through
 `AuthGuard`, then `ShopYethuAdminGuard` reads the current roles from the central
 user profile. Removing the admin role denies the next protected request even if
-old signed session metadata still contains it. The UI rechecks on load and when
-the tab regains focus. Future marketplace endpoints must also apply both guards;
+old signed session metadata still contains it. The UI checks once on page load
+or explicit retry. Returning to the browser, switching tabs and minimizing do
+not trigger requests or hide the dashboard. Concurrent checks share one request,
+including development StrictMode remounts; completed results are not cached.
+Session GETs use no custom headers, avoiding an extra CORS preflight. The backend
+shares profile reads within a single request, so authentication and authorization
+use at most one Firestore profile read, with no profile writes. Rate-limit storage
+and Firebase revocation checks remain in place. Future marketplace endpoints must also apply both guards;
 the client session gate alone does not protect backend data.
 
 Login, account settings, account selection and global sign-out go directly to

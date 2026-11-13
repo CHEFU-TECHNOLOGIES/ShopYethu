@@ -27,17 +27,10 @@ export default function SessionGate({ initialData }: { initialData: DashboardDat
       }
       setSession(result)
     }
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') void check()
-    }
     void check()
-    window.addEventListener('focus', check)
-    document.addEventListener('visibilitychange', onVisibility)
     return () => {
       active = false
       pending?.abort()
-      window.removeEventListener('focus', check)
-      document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [attempt])
 
@@ -56,7 +49,7 @@ export default function SessionGate({ initialData }: { initialData: DashboardDat
       </h1>
       <p role="status">
         {!session
-          ? 'Connecting to your CheFu account.'
+          ? 'Connecting to your account.'
           : forbidden
             ? 'Your account does not have administrator access to ShopYethu.'
             : 'The account service could not be reached. Please try again.'}
