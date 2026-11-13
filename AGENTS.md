@@ -8,5 +8,6 @@ Next.js App Router, React, TypeScript, and Tailwind CSS. Use npm.
 - Run `npm run typecheck` and `npm run build` before delivering code changes.
 - Frontend routes live in `src/app/(frontend)/`.
 - Shared UI lives in `src/components/`; domain types live in `src/types/`.
-- There is currently no database, authentication provider, or persistent backend.
+- Authentication uses the central CheFu session cookie; backend guards require current admin access.
+- There is currently no marketplace database or persistent marketplace backend.
 - Keep empty states useful and never report that an unavailable operation saved successfully.

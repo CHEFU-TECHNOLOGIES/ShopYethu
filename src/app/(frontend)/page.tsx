@@ -1,8 +1,8 @@
-import Dashboard from '@/components/dashboard/Dashboard'
+import SessionGate from '@/components/auth/SessionGate'
 
 export default function HomePage() {
   return (
-    <Dashboard
+    <SessionGate
       initialData={{
         applications: [],
         sellers: [],

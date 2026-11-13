@@ -8,7 +8,7 @@ const title = 'ShopYethu Admin'
 const description = 'Marketplace operations for ShopYethu staff'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://shopyethu-admin.chefu.co.za'),
   title,
   description,
   icons: siteIcons,

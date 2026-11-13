@@ -8,8 +8,16 @@ import { isView, navigation, type DashboardData, type Selection, type View } fro
 import DetailsDialog from './DetailsDialog'
 import Overview from './Overview'
 import Records from './Records'
+import type { AccountUser } from '@/lib/auth/session'
+import { accountUrl } from '@/lib/auth/config'
 
-export default function Dashboard({ initialData }: { initialData: DashboardData }) {
+export default function Dashboard({
+  initialData,
+  user,
+}: {
+  initialData: DashboardData
+  user: AccountUser
+}) {
   const [view, setView] = useState<View>('overview')
   const [selection, setSelection] = useState<Selection | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -91,7 +99,14 @@ export default function Dashboard({ initialData }: { initialData: DashboardData 
             ))}
           </nav>
           <div className="sidebar-footer">
-            <p>ShopYethu Admin</p>
+            <p>{user.name}</p>
+            <p>{user.email}</p>
+            <a className="text-link" href={accountUrl('/account')}>
+              Manage account
+            </a>
+            <a className="text-link" href={accountUrl('/logout')}>
+              Sign out
+            </a>
           </div>
         </div>
       </aside>
