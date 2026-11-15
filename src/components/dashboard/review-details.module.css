@@ -1,0 +1,252 @@
+.details {
+  padding: 0 28px;
+}
+.section {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+}
+.section h3,
+.sectionHeading h3 {
+  font-size: 13px;
+  font-weight: 650;
+  margin-bottom: 16px;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+}
+.fields dt {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+.fields dd {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.fields a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.description {
+  margin-top: 22px;
+}
+.description h4,
+.message h4 {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.description p,
+.bodyText,
+.message p {
+  font-size: 13px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.categories {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+.categories li {
+  background: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  font-size: 10px;
+}
+.note {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 12px 0;
+}
+.message {
+  background: var(--muted);
+  padding: 16px;
+  border-radius: 8px;
+}
+.message + .message {
+  margin-top: 10px;
+}
+.history {
+  padding: 20px 0;
+}
+.history summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 0;
+}
+.history summary span {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 400;
+  margin-left: 8px;
+}
+.timeline {
+  list-style: none;
+  padding: 0 0 0 14px;
+  margin: 20px 0 0 4px;
+  border-left: 1px solid var(--line);
+}
+.timeline li {
+  position: relative;
+  padding: 0 0 24px 10px;
+}
+.timeline li:last-child {
+  padding-bottom: 0;
+}
+.timeline li::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand);
+}
+.timeline p {
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin-top: 10px;
+}
+.eventHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.eventHeading time {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.actions {
+  padding: 24px 28px 28px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-header);
+}
+.sectionHeading h3 {
+  margin-bottom: 6px;
+}
+.sectionHeading p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.label span {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  min-height: 90px;
+  padding: 12px;
+  border: 1px solid var(--input);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.textarea::placeholder {
+  color: var(--text-muted);
+}
+.fieldHint {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 8px;
+}
+.fieldHint span:last-child {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+.dangerAction {
+  color: var(--destructive);
+}
+.confirmation {
+  margin-top: 20px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 8px;
+  padding: 18px;
+}
+.confirmation h4 {
+  font-size: 13px;
+  font-weight: 600;
+}
+.confirmation p {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.8;
+  margin-top: 8px;
+}
+
+.error {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  color: var(--status-negative-text);
+  background: var(--status-negative-bg);
+}
+.textarea:focus-visible,
+.confirmation:focus-visible,
+.history summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .details {
+    padding: 0 20px;
+  }
+  .fields {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .actions {
+    padding: 22px 20px;
+  }
+  .buttonRow > button {
+    white-space: normal;
+    height: auto;
+    min-height: 40px;
+  }
+}

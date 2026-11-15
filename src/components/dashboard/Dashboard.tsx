@@ -1,136 +1,170 @@
-'use client'
+"use client";
 
-import { ThemeSwitcher } from '@/components/theme-switcher'
-import { BrandLogo } from '@/components/brand-logo'
-import { Button } from '@/components/ui/button'
-import { useEffect, useRef, useState } from 'react'
-import { isView, navigation, type DashboardData, type Selection, type View } from './config'
-import DetailsDialog from './DetailsDialog'
-import Overview from './Overview'
-import Records from './Records'
-import type { AccountUser } from '@/lib/auth/session'
-import AccountSwitcher from '@/components/auth/AccountSwitcher'
-import MarketplaceReviews from './MarketplaceReviews'
-import { MarketplaceData } from './MarketplaceData'
+import { ThemeSwitcher } from "@/components/theme-switcher";
+import { BrandLogo } from "@/components/brand-logo";
+import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState } from "react";
+import {
+    isView,
+    navigation,
+    type DashboardData,
+    type Selection,
+    type View,
+} from "./config";
+import DetailsDialog from "./DetailsDialog";
+import Overview from "./Overview";
+import Records from "./Records";
+import type { AccountUser } from "@/lib/auth/session";
+import AccountSwitcher from "@/components/auth/AccountSwitcher";
+import MarketplaceReviews from "./MarketplaceReviews";
+import { MarketplaceData } from "./MarketplaceData";
 
 export default function Dashboard({
-  initialData,
-  user,
+    initialData,
+    user,
 }: {
-  initialData: DashboardData
-  user: AccountUser
+    initialData: DashboardData;
+    user: AccountUser;
 }) {
-  const [view, setView] = useState<View>('overview')
-  const [selection, setSelection] = useState<Selection | null>(null)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const heading = useRef<HTMLHeadingElement>(null)
-  const menuButton = useRef<HTMLButtonElement>(null)
-  const data = initialData
-  const current = navigation.find((item) => item.id === view)!
+    const [view, setView] = useState<View>("overview");
+    const [selection, setSelection] = useState<Selection | null>(null);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const heading = useRef<HTMLHeadingElement>(null);
+    const menuButton = useRef<HTMLButtonElement>(null);
+    const data = initialData;
+    const current = navigation.find((item) => item.id === view)!;
 
-  useEffect(() => {
-    const syncView = () => {
-      const value = window.location.hash.slice(1)
-      setView(isView(value) ? value : 'overview')
-      setMenuOpen(false)
-    }
-    syncView()
-    const navigate = () => {
-      syncView()
-      requestAnimationFrame(() => heading.current?.focus())
-    }
-    window.addEventListener('hashchange', navigate)
-    return () => window.removeEventListener('hashchange', navigate)
-  }, [])
+    useEffect(() => {
+        const syncView = () => {
+            const value = window.location.hash.slice(1);
+            setView(isView(value) ? value : "overview");
+            setMenuOpen(false);
+        };
+        syncView();
+        const navigate = () => {
+            syncView();
+            requestAnimationFrame(() => heading.current?.focus());
+        };
+        window.addEventListener("hashchange", navigate);
+        return () => window.removeEventListener("hashchange", navigate);
+    }, []);
 
-  useEffect(() => {
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && menuOpen) {
-        setMenuOpen(false)
-        menuButton.current?.focus()
-      }
-    }
-    document.addEventListener('keydown', escape)
-    return () => document.removeEventListener('keydown', escape)
-  }, [menuOpen])
+    useEffect(() => {
+        const escape = (event: KeyboardEvent) => {
+            if (event.key === "Escape" && menuOpen) {
+                setMenuOpen(false);
+                menuButton.current?.focus();
+            }
+        };
+        document.addEventListener("keydown", escape);
+        return () => document.removeEventListener("keydown", escape);
+    }, [menuOpen]);
 
-  return (
-    <MarketplaceData key={user.uid}>
-      <div className="dashboard">
-        <a
-          className="skip-link"
-          href="#main-content"
-          onClick={(event) => {
-            event.preventDefault()
-            document.getElementById('main-content')?.focus()
-          }}
-        >
-          Skip to content
-        </a>
-        <aside className="sidebar">
-          <a className="wordmark" href="#overview" aria-label="ShopYethu overview">
-            <BrandLogo />
-            <span className="brand-caption">Marketplace administration</span>
-          </a>
-          <Button
-            variant="outline"
-            className="mobile-menu button button--secondary"
-            ref={menuButton}
-            aria-expanded={menuOpen}
-            aria-controls="workspace-navigation"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? 'Close menu' : 'Menu'}
-          </Button>
-          <div className={`sidebar-content ${menuOpen ? 'is-open' : ''}`}>
-            <div className="sidebar-section-heading">
-              <p className="nav-label">Workspace</p>
-              <ThemeSwitcher />
-            </div>
-            <nav id="workspace-navigation" aria-label="Workspace">
-              {navigation.map((item) => (
+    return (
+        <MarketplaceData key={user.uid}>
+            <div className="dashboard">
                 <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  aria-current={view === item.id ? 'page' : undefined}
-                  onClick={() => {
-                    if (view === item.id) {
-                      setMenuOpen(false)
-                      heading.current?.focus()
-                    }
-                  }}
+                    className="skip-link"
+                    href="#main-content"
+                    onClick={(event) => {
+                        event.preventDefault();
+                        document.getElementById("main-content")?.focus();
+                    }}
                 >
-                  {item.label}
+                    Skip to content
                 </a>
-              ))}
-            </nav>
-            <div className="sidebar-footer">
-              <AccountSwitcher user={user} />
-            </div>
-          </div>
-        </aside>
+                <aside className="sidebar">
+                    <a
+                        className="wordmark"
+                        href="#overview"
+                        aria-label="ShopYethu overview"
+                    >
+                        <BrandLogo />
+                        <span className="brand-caption">
+                            Marketplace administration
+                        </span>
+                    </a>
+                    <Button
+                        variant="outline"
+                        className="mobile-menu button button--secondary"
+                        ref={menuButton}
+                        aria-expanded={menuOpen}
+                        aria-controls="workspace-navigation"
+                        onClick={() => setMenuOpen(!menuOpen)}
+                    >
+                        {menuOpen ? "Close menu" : "Menu"}
+                    </Button>
+                    <div
+                        className={`sidebar-content ${menuOpen ? "is-open" : ""}`}
+                    >
+                        <div className="sidebar-section-heading">
+                            <p className="nav-label">Workspace</p>
+                            <ThemeSwitcher />
+                        </div>
+                        <nav id="workspace-navigation" aria-label="Workspace">
+                            {navigation.map((item) => (
+                                <a
+                                    key={item.id}
+                                    href={`#${item.id}`}
+                                    aria-current={
+                                        view === item.id ? "page" : undefined
+                                    }
+                                    onClick={() => {
+                                        if (view === item.id) {
+                                            setMenuOpen(false);
+                                            heading.current?.focus();
+                                        }
+                                    }}
+                                >
+                                    {item.label}
+                                </a>
+                            ))}
+                        </nav>
+                        <div className="sidebar-footer">
+                            <AccountSwitcher user={user} />
+                        </div>
+                    </div>
+                </aside>
 
-        <div className="workspace">
-          <main id="main-content" className="workspace-main" tabIndex={-1}>
-            <div className="page-heading">
-              <div>
-                <h1 ref={heading} tabIndex={-1}>
-                  {current.label}
-                </h1>
-                <p className="page-description">{current.description}</p>
-              </div>
+                <div className="workspace">
+                    <main
+                        id="main-content"
+                        className="workspace-main"
+                        tabIndex={-1}
+                    >
+                        <div className="page-heading">
+                            <div>
+                                <h1 ref={heading} tabIndex={-1}>
+                                    {current.label}
+                                </h1>
+                                <p className="page-description">
+                                    {current.description}
+                                </p>
+                            </div>
+                        </div>
+                        {view === "overview" ? (
+                            <Overview />
+                        ) : view === "applications" ||
+                          view === "sellers" ||
+                          view === "complaints" ? (
+                            <MarketplaceReviews key={view} view={view} />
+                        ) : (
+                            <Records
+                                key={view}
+                                view={view}
+                                data={data}
+                                onSelect={setSelection}
+                            />
+                        )}
+                    </main>
+                </div>
+                {selection && (
+                    <DetailsDialog
+                        record={selection}
+                        onClose={() => setSelection(null)}
+                    />
+                )}
             </div>
-            {view === 'overview' ? (
-              <Overview />
-            ) : view === 'applications' || view === 'sellers' || view === 'complaints' ? (
-              <MarketplaceReviews key={view} view={view} />
-            ) : (
-              <Records key={view} view={view} data={data} onSelect={setSelection} />
-            )}
-          </main>
-        </div>
-        {selection && <DetailsDialog record={selection} onClose={() => setSelection(null)} />}
-      </div>
-    </MarketplaceData>
-  )
+        </MarketplaceData>
+    );
 }

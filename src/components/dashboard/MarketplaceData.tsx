@@ -10,12 +10,17 @@ import {
 } from 'react'
 import { createMarketplaceStore } from '@/lib/marketplace-store'
 import type { MarketplaceCollection, MarketplaceCollections } from '@/lib/marketplace-admin'
+import { ToastProvider } from '@/components/ui/toast'
 
 const Context = createContext<ReturnType<typeof createMarketplaceStore> | null>(null)
 
 export function MarketplaceData({ children }: { children: ReactNode }) {
   const [store] = useState(createMarketplaceStore)
-  return <Context.Provider value={store}>{children}</Context.Provider>
+  return (
+    <Context.Provider value={store}>
+      <ToastProvider>{children}</ToastProvider>
+    </Context.Provider>
+  )
 }
 
 export function useMarketplaceCollection<K extends MarketplaceCollection>(key: K) {
@@ -32,8 +37,9 @@ export function useMarketplaceCollection<K extends MarketplaceCollection>(key: K
   return {
     ...state,
     loading: state.status === 'idle' || state.status === 'loading',
-    refresh: () => {
-      void store.load(key, true)
+    refresh: async () => {
+      await store.load(key, true)
+      return store.get(key)
     },
     replace: (row: MarketplaceCollections[K]) => store.replace(key, row),
     invalidate: store.invalidate,

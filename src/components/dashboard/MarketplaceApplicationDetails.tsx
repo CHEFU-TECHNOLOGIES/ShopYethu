@@ -1,110 +1,145 @@
-import type { MarketplaceApplication } from "@/lib/marketplace-admin";
+import type { ReactNode } from 'react'
+import type { MarketplaceApplication } from '@/lib/marketplace-admin'
+import { reviewDate } from './review-records'
+import { Status } from './ui'
+import styles from './review-details.module.css'
 
-const labels = {
-    pending: "Pending review",
-    "more-info": "More information required",
-    approved: "Approved",
-    rejected: "Rejected",
-};
-const date = (value: string) => new Date(value).toLocaleString("en-ZA");
+export function ReviewField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{children || 'Not provided'}</dd>
+    </div>
+  )
+}
 
 export function MarketplaceApplicationDetails({
-    application,
+  application,
 }: {
-    application: MarketplaceApplication;
+  application: MarketplaceApplication
 }) {
-    const history = application.history?.length
-        ? application.history
-        : [
-              {
-                  status: application.status,
-                  at: application.updatedAt,
-                  reason: application.reason,
-              },
-          ];
-    return (
-        <div
-            style={{
-                display: "grid",
-                gap: 12,
-                overflowWrap: "anywhere",
-                whiteSpace: "pre-wrap",
-            }}
-        >
-            <div>
-                <p>
-                    {application.contactName} · {application.email} ·{" "}
-                    {application.phone}
-                </p>
-                {application.phoneConfirmed && (
-                    <p>
-                        Contact number confirmed by applicant
-                        {application.contactConfirmedAt
-                            ? ` on ${date(application.contactConfirmedAt)}`
-                            : ""}
-                        .
-                    </p>
-                )}
-                <p>Operating area: {application.area}</p>
-                {application.businessType && (
-                    <p>
-                        Business type:{" "}
-                        {application.businessType === "individual"
-                            ? "Individual / sole trader"
-                            : "Registered business"}
-                    </p>
-                )}
-                {!!application.categories?.length && (
-                    <p>Categories: {application.categories.join(", ")}</p>
-                )}
-                <p>{application.plans}</p>
-            </div>
-            {typeof application.collectionOffered === "boolean" && (
-                <div>
-                    <p>
-                        {application.collectionOffered
-                            ? `Collection offered in ${application.collectionArea}`
-                            : "No collection offered"}
-                    </p>
-                    {application.collectionOffered && (
-                        <p>Pickup hours: {application.pickupHours}</p>
-                    )}
-                </div>
-            )}
-            {application.response && (
-                <p>Latest applicant response: {application.response}</p>
-            )}
-            {application.reason && (
-                <p>Latest customer-facing message: {application.reason}</p>
-            )}
-            <details>
-                <summary style={{ cursor: "pointer", paddingBlock: 8 }}>
-                    Application updates
-                </summary>
-                {application.createdAt && (
-                    <p>First submitted: {date(application.createdAt)}</p>
-                )}
-                {!application.history?.length && (
-                    <p>Showing the latest recorded update.</p>
-                )}
-                <ol style={{ paddingLeft: 20 }}>
-                    {[...history].reverse().map((event, index) => (
-                        <li
-                            key={`${event.at}:${index}`}
-                            style={{ marginBlock: 12 }}
-                        >
-                            <p>
-                                <strong>{labels[event.status]}</strong> ·{" "}
-                                {date(event.at)}
-                            </p>
-                            {event.reason && <p>{event.reason}</p>}
-                            {event.response && (
-                                <p>Applicant response: {event.response}</p>
-                            )}
-                        </li>
-                    ))}
-                </ol>
-            </details>
+  const history = application.history?.length
+    ? application.history
+    : [{ status: application.status, at: application.updatedAt, reason: application.reason }]
+  return (
+    <div className={styles.details}>
+      <section className={styles.section}>
+        <h3>Business details</h3>
+        <dl className={styles.fields}>
+          <ReviewField label="Business type">
+            {application.businessType === 'individual'
+              ? 'Individual / sole trader'
+              : application.businessType === 'registered-business'
+                ? 'Registered business'
+                : null}
+          </ReviewField>
+          <ReviewField label="Operating area">{application.area}</ReviewField>
+          <ReviewField label="First submitted">
+            {application.createdAt
+              ? reviewDate(application.createdAt)
+              : 'Not recorded for this application'}
+          </ReviewField>
+          <ReviewField label="Last updated">{reviewDate(application.updatedAt)}</ReviewField>
+        </dl>
+        <div className={styles.description}>
+          <h4>Products they plan to sell</h4>
+          <p>{application.plans}</p>
         </div>
-    );
+        {!!application.categories?.length && (
+          <ul className={styles.categories} aria-label="Product categories">
+            {application.categories.map((category) => (
+              <li key={category}>{category}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section className={styles.section}>
+        <h3>Contact information</h3>
+        <dl className={styles.fields}>
+          <ReviewField label="Contact person">{application.contactName}</ReviewField>
+          <ReviewField label="Email address">
+            <a href={`mailto:${application.email}`}>{application.email}</a>
+          </ReviewField>
+          <ReviewField label="Contact number">
+            <a href={`tel:${application.phone.replace(/[^+\d]/g, '')}`}>{application.phone}</a>
+          </ReviewField>
+          <ReviewField label="Number confirmation">
+            {application.phoneConfirmed ? 'Confirmed by applicant' : 'Not recorded'}
+          </ReviewField>
+        </dl>
+        {application.phoneConfirmed && (
+          <p className={styles.note}>
+            The applicant confirmed this is their business contact number
+            {application.contactConfirmedAt
+              ? ` on ${reviewDate(application.contactConfirmedAt)}`
+              : ''}
+            . This is not SMS verification.
+          </p>
+        )}
+      </section>
+      <section className={styles.section}>
+        <h3>Customer collection</h3>
+        {typeof application.collectionOffered === 'boolean' ? (
+          application.collectionOffered ? (
+            <dl className={styles.fields}>
+              <ReviewField label="Pickup area">{application.collectionArea}</ReviewField>
+              <ReviewField label="Pickup hours">{application.pickupHours}</ReviewField>
+            </dl>
+          ) : (
+            <p className={styles.bodyText}>This business does not offer collection.</p>
+          )
+        ) : (
+          <p className={styles.note}>Collection details were not recorded for this application.</p>
+        )}
+      </section>
+      {(application.response || application.reason) && (
+        <section className={styles.section}>
+          <h3>Latest correspondence</h3>
+          {application.reason && (
+            <div className={styles.message}>
+              <h4>Message from the review team</h4>
+              <p>{application.reason}</p>
+            </div>
+          )}
+          {application.response && (
+            <div className={styles.message}>
+              <h4>Applicant’s response</h4>
+              <p>{application.response}</p>
+            </div>
+          )}
+        </section>
+      )}
+      <details className={styles.history}>
+        <summary>
+          Application history{' '}
+          <span>
+            {history.length} {history.length === 1 ? 'update' : 'updates'}
+          </span>
+        </summary>
+        {!application.history?.length && (
+          <p className={styles.note}>Only the latest recorded update is available.</p>
+        )}
+        <ol className={styles.timeline}>
+          {[...history].reverse().map((event, index) => (
+            <li key={`${event.at}:${index}`}>
+              <div className={styles.eventHeading}>
+                <Status value={event.status} />
+                <time>{reviewDate(event.at)}</time>
+              </div>
+              {event.reason && (
+                <p>
+                  <strong>Review team:</strong> {event.reason}
+                </p>
+              )}
+              {event.response && (
+                <p>
+                  <strong>Applicant:</strong> {event.response}
+                </p>
+              )}
+            </li>
+          ))}
+        </ol>
+      </details>
+    </div>
+  )
 }

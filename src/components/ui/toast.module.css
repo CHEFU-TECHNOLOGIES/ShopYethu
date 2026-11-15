@@ -1,0 +1,95 @@
+.viewport {
+  position: fixed;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(400px, calc(100vw - 32px));
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 10px 35px rgb(0 0 0 / 12%);
+  pointer-events: auto;
+  animation: appear 0.2s ease-out;
+}
+.icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--status-positive-text);
+  margin-top: 2px;
+}
+.toast[data-tone='error'] .icon {
+  color: var(--status-negative-text);
+}
+.content {
+  flex: 1;
+  min-width: 0;
+}
+.title {
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 600;
+}
+.description {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  color: var(--text-muted);
+  margin: -6px -6px 0 0;
+  cursor: pointer;
+}
+.close svg {
+  width: 15px;
+  height: 15px;
+}
+.close:hover {
+  background: var(--muted);
+  color: var(--ink);
+}
+.close:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 600px) {
+  .viewport {
+    right: 16px;
+    bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
