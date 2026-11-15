@@ -16,10 +16,20 @@ npm run build
 npm start
 ```
 
-Dashboard records are supplied through the `initialData` prop in
-`src/components/dashboard/Dashboard.tsx`. The homepage currently supplies empty
-arrays. The homepage requires a CheFu account with the `admin` role. Marketplace
-data is not connected to a persistent backend yet.
+The homepage requires a central account with the `admin` role. The Overview,
+Applications, Sellers and Complaints screens load the shared marketplace API at
+`https://api.chefu.co.za/shopyethu/admin`. Mobile applications submitted to
+`POST /shopyethu/application` and admin application reviews use the same
+Firestore collection, `shopyethu_applications`.
+
+Overview and review tabs share records for the current dashboard session.
+Switching tabs or returning to the browser does not reread them; use Refresh to
+check for new submissions. Review responses update the loaded application and
+approval invalidates the seller list. Data is cleared when the signed-in account
+changes. Failed or malformed responses show an error rather than an empty list.
+The current API returns at most 100 records per section; the overview counts and
+queue describe those loaded records. Listings, Orders and Activity still use
+the legacy `initialData` prop and are not connected to admin endpoints yet.
 
 SSO uses the existing central CheFu session, following the company website's
 browser flow. ShopYethu calls `GET /auth/shopyethu/session` on the central backend
@@ -33,7 +43,7 @@ including development StrictMode remounts; completed results are not cached.
 Session GETs use no custom headers, avoiding an extra CORS preflight. The backend
 shares profile reads within a single request, so authentication and authorization
 use at most one Firestore profile read, with no profile writes. Rate-limit storage
-and Firebase revocation checks remain in place. Future marketplace endpoints must also apply both guards;
+and Firebase revocation checks remain in place. Marketplace admin endpoints apply both guards;
 the client session gate alone does not protect backend data.
 
 Login, account settings, account selection and global sign-out go directly to
@@ -47,13 +57,12 @@ reopening, browser focus and tab switching do not fetch the list again. Switchin
 uses the existing central endpoint and reloads the workspace so the session gate
 checks the selected account's administrator permissions before rendering it.
 
-
 These public settings are included at build time. Deploy the backend session
 endpoint and the CheFu-Account return-origin registration before testing against
 the hosted SSO. Only `https://shopyethu-admin.chefu.co.za` is registered for
 ShopYethu; localhost is not an allowed return origin. The browser sends the
 backend's existing HTTP-only session cookie; ShopYethu does not need to read it.
-Dashboard records remain empty until a persistent marketplace backend is added.
+Deploy the backend marketplace module and this admin frontend to expose shared records.
 
 Use the **Colour theme** selector beside the sidebar’s Workspace label for Light, Dark, or System appearance.
 The browser remembers the preference under `shopyethu-theme`. System follows the

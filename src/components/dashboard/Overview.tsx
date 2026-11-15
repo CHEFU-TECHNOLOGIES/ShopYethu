@@ -1,52 +1,76 @@
-import { date, type DashboardData, type Selection, type View } from './config'
-import { getRecords } from './record-data'
-import { RecordTable } from './Records'
-import { EmptyState, Panel } from './ui'
+import { Button } from '@/components/ui/button'
+import { date } from './config'
+import { EmptyState, Panel, Status } from './ui'
+import { useMarketplaceCollection } from './MarketplaceData'
 
-export default function Overview({
-  data,
-  onSelect,
-}: {
-  data: DashboardData
-  onSelect: (record: Selection) => void
-}) {
-  const pending = data.applications.filter((application) => application.status === 'pending')
-  const concerns = data.complaints.filter((complaint) => complaint.status !== 'resolved')
-  const reports = data.products.filter(
-    (product) => product.reportCount > 0 && product.status !== 'hidden',
-  )
-  const queue = getRecords('applications', { ...data, applications: pending })
-    .rows.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+export default function Overview() {
+  const applications = useMarketplaceCollection('applications')
+  const sellers = useMarketplaceCollection('sellers')
+  const reports = useMarketplaceCollection('reports')
+  const resources = [applications, sellers, reports]
+  const loading = resources.some((resource) => resource.loading)
+  const errors = resources
+    .map((resource, index) =>
+      resource.error ? `${['Applications', 'Sellers', 'Reports'][index]}: ${resource.error}` : '',
+    )
+    .filter(Boolean)
+  const pending = applications.rows.filter((application) => application.status === 'pending')
+  const requested = applications.rows.filter((application) => application.status === 'more-info')
+  const queue = [...pending]
+    .sort((a, b) =>
+      (a.createdAt || a.history?.[0]?.at || a.updatedAt).localeCompare(
+        b.createdAt || b.history?.[0]?.at || b.updatedAt,
+      ),
+    )
     .slice(0, 4)
-  const metrics: { label: string; value: number; detail: string; view: View }[] = [
+  const openReports = reports.rows.filter((report) => report.status !== 'resolved')
+  const metrics = [
     {
       label: 'Awaiting review',
-      value: pending.length,
+      value: applications.status === 'ready' ? pending.length : '—',
       detail: 'Seller applications',
       view: 'applications',
     },
     {
+      label: 'Information requested',
+      value: applications.status === 'ready' ? requested.length : '—',
+      detail: 'Waiting for applicants',
+      view: 'applications',
+    },
+    {
       label: 'Active sellers',
-      value: data.sellers.filter((seller) => seller.status === 'active').length,
+      value:
+        sellers.status === 'ready'
+          ? sellers.rows.filter((seller) => seller.status === 'active').length
+          : '—',
       detail: 'Approved businesses',
       view: 'sellers',
     },
     {
-      label: 'Reported listings',
-      value: reports.length,
-      detail: 'Listings to look into',
-      view: 'products',
-    },
-    {
-      label: 'Open complaints',
-      value: concerns.length,
-      detail: 'Customer concerns',
+      label: 'Open reports',
+      value: reports.status === 'ready' ? openReports.length : '—',
+      detail: 'Listings and orders',
       view: 'complaints',
     },
   ]
 
   return (
-    <div className="overview">
+    <div className="overview" aria-busy={loading}>
+      <div>
+        <Button
+          variant="outline"
+          disabled={loading}
+          onClick={() => resources.forEach((resource) => resource.refresh())}
+        >
+          Refresh overview
+        </Button>
+      </div>
+      {loading && <p role="status">Loading marketplace overview…</p>}
+      {errors.map((error) => (
+        <p role="alert" key={error}>
+          {error}
+        </p>
+      ))}
       <section className="metric-strip" aria-label="Marketplace summary">
         {metrics.map((metric) => (
           <a key={metric.label} href={`#${metric.view}`} className="metric">
@@ -56,90 +80,109 @@ export default function Overview({
           </a>
         ))}
       </section>
-
-      <div className="overview-grid">
-        <Panel
-          title="Applications to review"
-          aside={
-            <a className="text-link" href="#applications">
-              All applications
-            </a>
-          }
-        >
-          {queue.length ? (
-            <RecordTable
-              columns={['Business', 'Location', 'Submitted', 'Status']}
-              rows={queue}
-              onSelect={onSelect}
-              caption="Applications awaiting review, oldest first"
-            />
-          ) : (
-            <EmptyState
-              title="No applications awaiting review"
-              description="When a business applies to sell, you’ll find their application here."
-            />
-          )}
-          <div className="panel-footnote">Applications are shown oldest first.</div>
-        </Panel>
-
-        <Panel title="Needs attention" className="attention-panel">
-          <div className="attention-item">
-            <div>
-              <h3>Listing reports</h3>
-              <p>
-                {reports.length
-                  ? `${reports.length} listing needs a closer look.`
-                  : 'No reported listings to review.'}
-              </p>
-            </div>
-            <a className="text-link" href="#products">
-              Review listings
-            </a>
-          </div>
-          <div className="attention-item">
-            <div>
-              <h3>Customer concerns</h3>
-              <p>
-                {concerns.length
-                  ? `${concerns.length} customer concern awaiting resolution.`
-                  : 'No open customer concerns.'}
-              </p>
-            </div>
-            <a className="text-link" href="#complaints">
-              View complaints
-            </a>
-          </div>
-        </Panel>
-      </div>
-
       <Panel
-        title="Recent activity"
+        title="Applications to review"
         aside={
-          <a href="#audit" className="text-link">
-            All activity
+          <a className="text-link" href="#applications">
+            All applications
           </a>
         }
       >
-        {data.auditEvents.length ? (
-          <div className="activity-list">
-            {data.auditEvents.slice(0, 4).map((event) => (
-              <div className="activity-row" key={event.id}>
-                <div>
-                  <h3>{event.action}</h3>
-                  <p>{event.targetLabel}</p>
-                </div>
-                <p className="activity-reason">{event.reason}</p>
-                <time dateTime={event.createdAt}>{date(event.createdAt)}</time>
-              </div>
-            ))}
+        {applications.loading ? (
+          <p role="status">Loading applications…</p>
+        ) : applications.error ? (
+          <p>Applications could not be loaded. Use Refresh to try again.</p>
+        ) : queue.length ? (
+          <div
+            className="table-scroll"
+            tabIndex={0}
+            role="region"
+            aria-label="Applications awaiting review"
+          >
+            <table>
+              <caption className="sr-only">Applications awaiting review, oldest first</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Business</th>
+                  <th scope="col">Location</th>
+                  <th scope="col">Submitted</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Review</th>
+                </tr>
+              </thead>
+              <tbody>
+                {queue.map((application) => (
+                  <tr key={application.id}>
+                    <td data-label="Business">
+                      <span className="cell-title">{application.businessName}</span>
+                      <span className="cell-description">{application.contactName}</span>
+                    </td>
+                    <td data-label="Location">{application.area}</td>
+                    <td data-label="Submitted">
+                      {date(
+                        application.createdAt ||
+                          application.history?.[0]?.at ||
+                          application.updatedAt,
+                      )}
+                    </td>
+                    <td data-label="Status">
+                      <Status value={application.status} />
+                    </td>
+                    <td className="table-action">
+                      <a
+                        className="text-link"
+                        href="#applications"
+                        aria-label={`Review ${application.businessName}`}
+                      >
+                        Review
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : (
-          <div className="activity-empty">
-            <p>No activity recorded yet.</p>
-            <span>Reviews and marketplace decisions will appear here.</span>
-          </div>
+          <EmptyState
+            title="No applications awaiting review"
+            description="Submitted applications appear here when they are ready for review."
+          />
         )}
+        <div className="panel-footnote">
+          Applications are shown oldest first within the loaded records.
+        </div>
       </Panel>
+      <Panel title="Needs attention">
+        <div className="attention-item">
+          <div>
+            <h3>More information required</h3>
+            <p>
+              {applications.status === 'ready'
+                ? `${requested.length} applications awaiting an applicant response.`
+                : 'Application summary unavailable until records load.'}
+            </p>
+          </div>
+          <a className="text-link" href="#applications">
+            View applications
+          </a>
+        </div>
+        <div className="attention-item">
+          <div>
+            <h3>Customer reports</h3>
+            <p>
+              {reports.status === 'ready'
+                ? `${openReports.length} open listing or order reports.`
+                : 'Report summary unavailable until records load.'}
+            </p>
+          </div>
+          <a className="text-link" href="#complaints">
+            View reports
+          </a>
+        </div>
+      </Panel>
+      <p className="page-description">
+        Showing up to 100 records per section. Use Refresh to check for new submissions.
+      </p>
     </div>
   )
 }
