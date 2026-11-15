@@ -16,6 +16,7 @@ import Overview from "./Overview";
 import Records from "./Records";
 import type { AccountUser } from "@/lib/auth/session";
 import AccountSwitcher from "@/components/auth/AccountSwitcher";
+import MarketplaceReviews from "./MarketplaceReviews";
 
 export default function Dashboard({
     initialData,
@@ -139,6 +140,8 @@ export default function Dashboard({
                     </div>
                     {view === "overview" ? (
                         <Overview data={data} onSelect={setSelection} />
+                    ) : view === "applications" || view === "sellers" || view === "complaints" ? (
+                        <MarketplaceReviews key={view} view={view} />
                     ) : (
                         <Records
                             key={view}
