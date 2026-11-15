@@ -117,7 +117,9 @@ export default function Overview() {
                       <span className="cell-title">{application.businessName}</span>
                       <span className="cell-description">{application.contactName}</span>
                     </td>
-                    <td data-label="Location">{application.area}</td>
+                    <td data-label="Location">
+                      {application.area || (application.areaPlaceId ? 'Location selected' : '')}
+                    </td>
                     <td data-label="Submitted">
                       {date(
                         application.createdAt ||

@@ -3,6 +3,7 @@ import type { MarketplaceApplication } from '@/lib/marketplace-admin'
 import { reviewDate } from './review-records'
 import { Status } from './ui'
 import styles from './review-details.module.css'
+import { GoogleAreaLabel } from './GoogleAreaLabel'
 
 export function ReviewField({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -33,7 +34,9 @@ export function MarketplaceApplicationDetails({
                 ? 'Registered business'
                 : null}
           </ReviewField>
-          <ReviewField label="Operating area">{application.area}</ReviewField>
+          <ReviewField label="Operating area">
+            <GoogleAreaLabel area={application.area} placeId={application.areaPlaceId} />
+          </ReviewField>
           <ReviewField label="First submitted">
             {application.createdAt
               ? reviewDate(application.createdAt)

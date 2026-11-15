@@ -2,6 +2,7 @@ import type { ReviewRecord } from './review-records'
 import { reviewDate } from './review-records'
 import { MarketplaceApplicationDetails, ReviewField } from './MarketplaceApplicationDetails'
 import styles from './review-details.module.css'
+import { GoogleAreaLabel } from './GoogleAreaLabel'
 
 export function ReviewRecordDetails({ row }: { row: ReviewRecord }) {
   if ('businessName' in row) return <MarketplaceApplicationDetails application={row} />
@@ -12,7 +13,9 @@ export function ReviewRecordDetails({ row }: { row: ReviewRecord }) {
           <h3>Storefront</h3>
           <dl className={styles.fields}>
             <ReviewField label="Store name">{row.name}</ReviewField>
-            <ReviewField label="Operating area">{row.area}</ReviewField>
+            <ReviewField label="Operating area">
+              <GoogleAreaLabel area={row.area} placeId={row.areaPlaceId} />
+            </ReviewField>
           </dl>
           <div className={styles.description}>
             <h4>About the business</h4>

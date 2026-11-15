@@ -8,6 +8,7 @@ export type MarketplaceApplication = {
   email: string
   phone: string
   area: string
+  areaPlaceId?: string
   plans: string
   response: string
   status: 'pending' | 'more-info' | 'approved' | 'rejected'
@@ -32,6 +33,7 @@ export type MarketplaceSeller = {
   id: string
   name: string
   area: string
+  areaPlaceId?: string
   description: string
   status: 'active' | 'suspended'
   reason: string
@@ -99,4 +101,15 @@ export async function marketplaceAdmin<T>(path: string, options: RequestInit = {
         : data?.error || data?.message || 'Unable to complete this request.',
     )
   return data as T
+}
+
+export async function resolveMarketplaceArea(placeId: string, signal?: AbortSignal): Promise<string> {
+  const response = await fetch(`${API_URL}/shopyethu/areas/${encodeURIComponent(placeId)}`, {
+    cache: 'no-store',
+    signal: signal || AbortSignal.timeout(10000),
+  })
+  const data = await response.json().catch(() => null)
+  if (!response.ok || typeof data?.label !== 'string')
+    throw new Error(data?.message || 'Location could not be loaded. Try again.')
+  return data.label
 }

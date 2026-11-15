@@ -46,9 +46,9 @@ export function reviewTitle(row: ReviewRecord) {
 }
 export function reviewSubtitle(row: ReviewRecord) {
   return 'contactName' in row
-    ? `${row.contactName} · ${row.area}`
+    ? `${row.contactName}${row.area ? ` · ${row.area}` : row.areaPlaceId ? ' · Location selected' : ''}`
     : 'area' in row
-      ? row.area
+      ? row.area || (row.areaPlaceId ? 'Location selected' : '')
       : row.orderId
         ? `Order ${row.orderId}`
         : `Listing ${row.productId || 'not recorded'}`
